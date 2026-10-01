@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Custom plugin to duplicate index.html to 404.html for SPA static hosting fallback
+// Custom plugin to duplicate index.html to 404.html and all SPA routes for static hosting
 const spaFallbackPlugin = () => ({
   name: 'spa-fallback',
   closeBundle() {
@@ -16,10 +16,24 @@ const spaFallbackPlugin = () => ({
       const notFoundPath = path.join(distDir, '404.html')
       if (fs.existsSync(indexPath)) {
         fs.copyFileSync(indexPath, notFoundPath)
-        console.log('✓ Successfully created 404.html fallback for SPA routing.')
+        
+        // Generate pre-rendered fallback HTML for every app route
+        const appRoutes = [
+          'admin', 'login', 'register', 'dashboard', 'about',
+          'ambassador', 'contact', 'buy-nfc', 'nfc', 'events', 'ambassadors'
+        ]
+        for (const route of appRoutes) {
+          const routeDir = path.join(distDir, route)
+          if (!fs.existsSync(routeDir)) {
+            fs.mkdirSync(routeDir, { recursive: true })
+          }
+          fs.copyFileSync(indexPath, path.join(routeDir, 'index.html'))
+          fs.copyFileSync(indexPath, path.join(distDir, `${route}.html`))
+        }
+        console.log('✓ Successfully created static route fallbacks for SPA routes including /admin.')
       }
     } catch (e) {
-      console.error('Failed to create 404.html fallback:', e)
+      console.error('Failed to create SPA fallback files:', e)
     }
   }
 })
