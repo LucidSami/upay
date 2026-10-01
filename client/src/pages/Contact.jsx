@@ -1,0 +1,247 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
+import './Contact.css';
+
+const Facebook = ({ size = 20 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+  </svg>
+);
+
+const Instagram = ({ size = 20 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+const Linkedin = ({ size = 20 }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+  </svg>
+);
+
+const Contact = () => {
+  const [contactInfo, setContactInfo] = useState({
+    email: "corporate2@skill.jobs",
+    phone: "01847-334785",
+    address: "Dhaka, Bangladesh",
+    facebook: "https://www.facebook.com/share/1DUKveuC4h/",
+    linkedin: "https://www.linkedin.com/company/skilljobs/",
+    instagram: "https://www.instagram.com/skilljobsnextgen?igsh=MXdiaG1obzhjNjJnYQ=="
+  });
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+  const [status, setStatus] = useState({
+    submitting: false,
+    success: false,
+    error: null
+  });
+
+  useEffect(() => {
+    const fetchConfigs = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/configs`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.contact) {
+            setContactInfo(data.contact);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to fetch contact configs:', err);
+      }
+    };
+    fetchConfigs();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus({ submitting: true, success: false, error: null });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        setStatus({ submitting: false, success: true, error: null });
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        const errData = await response.json();
+        setStatus({ submitting: false, success: false, error: errData.message || 'Failed to send message.' });
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus({ submitting: false, success: false, error: 'Failed to connect to the server. Please try again.' });
+    }
+  };
+
+  return (
+    <div className="contact-page">
+      <section className="page-header">
+        <div className="container text-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="page-title"
+          >
+            Get in <span className="text-gradient">Touch</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="page-subtitle"
+          >
+            Have a question or want to collaborate? We'd love to hear from you.
+          </motion.p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="contact-grid">
+            <div className="contact-info">
+              <h3>Contact Information</h3>
+              <p className="contact-info-desc">Reach out to us through any of the following channels.</p>
+              
+              <div className="info-item">
+                <div className="info-icon"><Mail size={24} /></div>
+                <div>
+                  <h4>Email Us</h4>
+                  <p>{contactInfo.email}</p>
+                </div>
+              </div>
+              
+              <div className="info-item">
+                <div className="info-icon"><Phone size={24} /></div>
+                <div>
+                  <h4>Call / WhatsApp</h4>
+                  <p>{contactInfo.phone}</p>
+                </div>
+              </div>
+              
+              <div className="info-item">
+                <div className="info-icon"><MapPin size={24} /></div>
+                <div>
+                  <h4>Visit Us</h4>
+                  <p>{contactInfo.address}</p>
+                </div>
+              </div>
+
+              <div className="social-connect">
+                <h4>Follow Us</h4>
+                <div className="social-icons">
+                  <a href={contactInfo.facebook || "https://www.facebook.com/share/1DUKveuC4h/"} className="social-btn facebook" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook"><Facebook size={20} /></a>
+                  <a href={contactInfo.linkedin || "https://www.linkedin.com/company/skilljobs/"} className="social-btn linkedin" target="_blank" rel="noopener noreferrer" title="LinkedIn" aria-label="LinkedIn"><Linkedin size={20} /></a>
+                  <a href={contactInfo.instagram || "https://www.instagram.com/skilljobsnextgen?igsh=MXdiaG1obzhjNjJnYQ=="} className="social-btn instagram" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram"><Instagram size={20} /></a>
+                </div>
+              </div>
+            </div>
+
+            <div className="contact-form-wrapper">
+              <h3>Send a Message</h3>
+              <p>Fill out the form below and we will get back to you as soon as possible.</p>
+              <form className="contact-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Your Name</label>
+                  <input 
+                    type="text" 
+                    name="name" 
+                    value={formData.name} 
+                    onChange={handleChange} 
+                    placeholder="Your Name" 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={formData.email} 
+                    onChange={handleChange} 
+                    placeholder="email@example.com" 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Subject</label>
+                  <input 
+                    type="text" 
+                    name="subject" 
+                    value={formData.subject} 
+                    onChange={handleChange} 
+                    placeholder="How can we help?" 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Message</label>
+                  <textarea 
+                    name="message" 
+                    value={formData.message} 
+                    onChange={handleChange} 
+                    rows="5" 
+                    placeholder="Write your message here..." 
+                    required
+                  ></textarea>
+                </div>
+                <button type="submit" className="btn btn-primary w-100" disabled={status.submitting}>
+                  {status.submitting ? 'Sending...' : 'Send Message'} <Send size={18} className="inline-icon" />
+                </button>
+
+                <AnimatePresence>
+                  {status.success && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="form-status-msg success"
+                    >
+                      <CheckCircle size={18} /> Message sent successfully!
+                    </motion.div>
+                  )}
+
+                  {status.error && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="form-status-msg error"
+                    >
+                      <AlertCircle size={18} /> {status.error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Contact;
