@@ -126,6 +126,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # REST Framework Configuration
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
@@ -136,6 +137,23 @@ REST_FRAMEWORK = {
     'UNAUTHENTICATED_USER': None,
 }
 
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://upay.timelesshq.software',
+    'http://localhost:5173',
+    'http://localhost:5000',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5000',
+    'http://127.0.0.1:3000',
+]
+raw_csrf = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if raw_csrf:
+    for o in raw_csrf.split(','):
+        if o.strip() and o.strip() not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(o.strip())
+
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True').lower() in ('true', '1', 't')
 raw_origins = os.getenv('ALLOWED_ORIGINS', '')
@@ -143,6 +161,9 @@ if raw_origins:
     valid_origins = [o.strip() for o in raw_origins.split(',') if o.strip().startswith(('http://', 'https://'))]
     if valid_origins:
         CORS_ALLOWED_ORIGINS = valid_origins
+        for origin in valid_origins:
+            if origin not in CSRF_TRUSTED_ORIGINS:
+                CSRF_TRUSTED_ORIGINS.append(origin)
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ['*']
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
