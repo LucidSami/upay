@@ -1,22 +1,35 @@
 {
-  "version": 2,
-  "outputDirectory": "client/dist",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "skilljobs-web": {
+      "root": "client",
+      "framework": "vite",
+      "buildCommand": "npm install && npm run build"
+    },
+    "skilljobs-api": {
+      "root": "server_django",
+      "framework": "django",
+      "buildCommand": "pip install -r requirements.txt && python manage.py migrate && python manage.py seed_data"
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/index.py"
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "skilljobs-api"
+      }
     },
     {
-      "source": "/django-admin/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/static/admin/:path*",
-      "destination": "/api/index.py"
+      "source": "/django-admin/(.*)",
+      "destination": {
+        "service": "skilljobs-api"
+      }
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": {
+        "service": "skilljobs-web"
+      }
     }
   ]
 }
