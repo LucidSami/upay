@@ -32,9 +32,22 @@
       }
     },
     {
-      "source": "/(.*)",
+      "source": "/assets/(.*)",
       "destination": {
         "service": "skilljobs-web"
+      }
+    },
+    {
+      "source": "/(.*\\.[a-zA-Z0-9]+)$",
+      "destination": {
+        "service": "skilljobs-web"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "skilljobs-web",
+        "path": "/index.html"
       }
     }
   ]
