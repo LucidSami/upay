@@ -5,7 +5,9 @@ client/node_modules/
 # Production build outputs
 dist/
 client/dist/
-staticfiles/
+/staticfiles/
+!server_django/staticfiles/
+!server_django/staticfiles/**
 
 # Python / Byte-compiled
 __pycache__/

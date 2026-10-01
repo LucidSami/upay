@@ -9,7 +9,7 @@
     "skilljobs-api": {
       "root": "server_django",
       "framework": "django",
-      "buildCommand": "pip install -r requirements.txt && python manage.py migrate && python manage.py seed_data"
+      "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py seed_data"
     }
   },
   "rewrites": [
@@ -21,6 +21,12 @@
     },
     {
       "source": "/django-admin/(.*)",
+      "destination": {
+        "service": "skilljobs-api"
+      }
+    },
+    {
+      "source": "/static/(.*)",
       "destination": {
         "service": "skilljobs-api"
       }
